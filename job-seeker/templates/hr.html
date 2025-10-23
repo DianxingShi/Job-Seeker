@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Assistant</title>
+    <style>
+        :root {
+            --bg-gradient-start: #f0f4ff;
+            --bg-gradient-end: #e8f1ff;
+            --container-bg: #ffffff;
+            --chatbox-bg: #fafbff;
+            --input-bg: #f5f7ff;
+            --user-msg-bg: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gpt-msg-bg: #f0f2f7;
+            --text-primary: #2d3748;
+            --text-secondary: #718096;
+            --accent-color: #667eea;
+            --accent-hover: #5568d3;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 2px 8px rgba(102, 126, 234, 0.08);
+            --shadow-md: 0 4px 16px rgba(102, 126, 234, 0.12);
+            --shadow-lg: 0 8px 32px rgba(102, 126, 234, 0.16);
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            --border-radius: 16px;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text-primary);
+            padding: 20px;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 900px;
+            height: 90vh;
+            max-height: 800px;
+            background: var(--container-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .header {
+            padding: 24px 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-buttons {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-icon {
+            font-size: 2rem;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: white;
+            letter-spacing: -0.5px;
+        }
+
+        .lang-switch {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 24px;
+            padding: 8px 16px;
+            color: white;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .lang-switch:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .chat-box {
+            flex-grow: 1;
+            padding: 32px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            background: var(--chatbox-bg);
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent-color) transparent;
+        }
+
+        .message {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            max-width: 80%;
+            animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .message .icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.4rem;
+            flex-shrink: 0;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .message .content {
+            padding: 16px 20px;
+            border-radius: 18px;
+            line-height: 1.6;
+            font-size: 0.95rem;
+            font-weight: 400;
+            box-shadow: var(--shadow-sm);
+            white-space: pre-line;
+        }
+
+        .message.gpt {
+            align-self: flex-start;
+        }
+
+        .message.gpt .icon {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .message.gpt .content {
+            background: var(--gpt-msg-bg);
+            color: var(--text-primary);
+            border-top-left-radius: 4px;
+        }
+
+        .message.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message.user .icon {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .message.user .content {
+            background: var(--user-msg-bg);
+            color: white;
+            border-top-right-radius: 4px;
+        }
+
+        .input-area-wrapper {
+            padding: 24px 32px;
+            border-top: 1px solid var(--border-color);
+            background: var(--container-bg);
+        }
+
+        .input-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--input-bg);
+            padding: 12px;
+            border-radius: 20px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        textarea {
+            flex-grow: 1;
+            border: none;
+            background: transparent;
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            font-size: 0.95rem;
+            padding: 8px 12px;
+            resize: none;
+            max-height: 120px;
+            outline: none;
+        }
+
+        textarea::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .upload-btn-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .btn {
+            border: none;
+            color: white;
+            background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 100%);
+            padding: 16px;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-btn-wrapper:hover .btn {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .upload-btn-wrapper input[type=file] {
+            font-size: 100px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+            height: 100%;
+        }
+
+        #task-setup-area button {
+            width: 100%;
+            padding: 16px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        #task-setup-area button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        #task-setup-area button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .typing-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .typing-indicator span {
+            height: 8px;
+            width: 8px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            display: inline-block;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        @keyframes typing {
+
+            0%,
+            60%,
+            100% {
+                transform: translateY(0);
+                opacity: 0.5;
+            }
+
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+        
+        #model-select {
+            width: 100%;
+            padding: 12px;
+            font-size: 1rem;
+            font-family: var(--font-family);
+            color: var(--text-primary);
+            background-color: white;
+            border: 2px solid var(--border-color);
+            border-radius: 14px;
+            cursor: pointer;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27292.4%27%20height%3D%27292.4%27%3E%3Cpath%20fill%3D%27%23718096%27%20d%3D%27M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%27%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 0.8em;
+            margin-bottom: 12px;
+        }
+        
+    </style>
+</head>
+
+<body>
+    <div class="chat-container">
+        <div class="header">
+            <div class="header-left">
+                <span class="header-icon">🧑‍⚖️</span>
+                <h1 id="header-title">HR 助手</h1>
+            </div>
+            <div class="header-buttons">
+                <button class="lang-switch" id="lang-toggle">🌐 EN</button>
+                <button class="lang-switch" id="save-btn" title="保存分析">💾</button>
+            </div>
+        </div>
+
+        <div class="chat-box" id="chat-box">
+            <div class="message gpt">
+                <div class="icon">💻</div>
+                <div class="content">
+                    <p id="welcome-msg">您好！👋 请先选择一个语言模型，然后设定您的HR角色。</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-area-wrapper">
+            <div id="task-setup-area" style="flex-direction: column; gap: 0; align-items: stretch;">
+                <select id="model-select">
+                    <option value="" disabled selected>🤖 第一步：请选择一个模型...</option>
+                    <option value="gpt-4o">GPT-4o</option>
+                    <option value="gpt-5-chat">GPT-5-chat</option>
+                    <option value="deepseek-r1">DeepSeek-R1</option>
+                    <!-- <option value="deepseek-v3.1">DeepSeek-V3.1</option> -->
+                    <option value="deepseek-v3.2-exp">DeepSeek-V3.2-exp</option>
+                    <option value="deepseek-v3.1-terminus">DeepSeek-V3.1-terminus</option>
+                    <option value="qwen1.5-32b-chat">Qwen1.5-32b-chat</option>
+                    <option value="qwen2.5-32b-instruct">Qwen2.5-32b-instruct</option>
+                    <option value="qwen3-32b">Qwen3-32b</option>
+                    <option value="gemini2.5-flash">Gemini2.5-flash</option>
+                    <option value="gemini2.5-pro">Gemini2.5-pro</option>
+                    <option value="llama-3.3-70b-instruct">Llama-3.3-70B-Instruct</option>
+                    <option value="llama4-maverick-17b-128e-instruct-fp8">Llama4-Maverick-17B-128E-Instruct-FP8</option>
+                </select>
+
+                <div id="role-input-area" class="input-area" style="flex-direction: column; align-items: stretch; display: none;">
+                    <textarea id="task-input" rows="2" placeholder="📝 第二步：在此输入您的角色描述..." style="width: 100%;"></textarea>
+                    <button id="set-task-btn" class="primary">🚀 设定角色</button>
+                </div>
+            </div>
+
+            <div id="analysis-area" class="input-area" style="display: none;">
+                <div class="upload-btn-wrapper">
+                    <button class="btn" id="upload-btn-text">📁 上传候选人答案 (.json)</button>
+                    <input type="file" id="file-input" accept=".json">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const translations = {
+            zh: {
+                headerTitle: 'HR 助手',
+                langButton: '🌐 EN',
+                welcomeMsg: '您好！👋 请先选择一个语言模型，然后设定您的HR角色。',
+                modelSelectPlaceholder: '🤖 第一步：请选择一个模型...',
+                taskPlaceholder: '📝 第二步：在此输入您的角色描述...',
+                setTaskBtn: '🚀 设定角色',
+                settingTask: '⏳ 设定中...',
+                uploadBtnText: '📁 上传候选人答案 (.json)',
+                taskEmpty: '角色描述不能为空！',
+                modelEmpty: '请先选择一个模型！',
+                requestFailed: '请求失败，请检查后端服务是否运行。',
+                analyzing: '🧠 分析中...',
+                analysisFailed: '分析失败。',
+                saveAnalysis: '保存分析',
+                saving: '💾 保存中...',
+            },
+            en: {
+                headerTitle: 'HR Assistant',
+                langButton: '🌐 CN',
+                welcomeMsg: 'Hello! 👋 Please select a model first, then set up your HR role.',
+                modelSelectPlaceholder: '🤖 Step 1: Please select a model...',
+                taskPlaceholder: '📝 Step 2: Enter your role description...',
+                setTaskBtn: '🚀 Set Role',
+                settingTask: '⏳ Setting...',
+                uploadBtnText: '📁 Upload Candidate Answers (.json)',
+                taskEmpty: 'Role description cannot be empty!',
+                modelEmpty: 'Please select a model first!',
+                requestFailed: 'Request failed. Please check if the backend service is running.',
+                analyzing: '🧠 Analyzing...',
+                analysisFailed: 'Analysis failed.',
+                saveAnalysis: 'Save Analysis',
+                saving: '💾 Saving...',
+            }
+        };
+
+        let currentLang = 'zh';
+
+        const chatBox = document.getElementById('chat-box');
+        const taskSetupArea = document.getElementById('task-setup-area');
+        const modelSelect = document.getElementById('model-select');
+        const roleInputArea = document.getElementById('role-input-area');
+        const taskInput = document.getElementById('task-input');
+        const setTaskBtn = document.getElementById('set-task-btn');
+        const analysisArea = document.getElementById('analysis-area');
+        const fileInput = document.getElementById('file-input');
+        const langToggle = document.getElementById('lang-toggle');
+        const headerTitle = document.getElementById('header-title');
+        const welcomeMsg = document.getElementById('welcome-msg');
+        const saveBtn = document.getElementById('save-btn');
+        const uploadBtnText = document.getElementById('upload-btn-text');
+
+        // Language switching
+        langToggle.addEventListener('click', () => {
+            currentLang = currentLang === 'zh' ? 'en' : 'zh';
+            updateLanguage();
+        });
+
+        function updateLanguage() {
+            const t = translations[currentLang];
+            headerTitle.textContent = t.headerTitle;
+            langToggle.textContent = t.langButton;
+            welcomeMsg.innerHTML = t.welcomeMsg;
+            taskInput.placeholder = t.taskPlaceholder;
+            setTaskBtn.textContent = t.setTaskBtn;
+            uploadBtnText.textContent = t.uploadBtnText;
+            saveBtn.title = t.saveAnalysis;
+            modelSelect.querySelector('option[disabled]').textContent = t.modelSelectPlaceholder;
+        }
+
+        // Show role input after model selection
+        modelSelect.addEventListener('change', () => {
+            if (modelSelect.value) {
+                roleInputArea.style.display = 'flex';
+            } else {
+                roleInputArea.style.display = 'none';
+            }
+        });
+
+        // Auto-resize textarea
+        taskInput.addEventListener('input', () => {
+            taskInput.style.height = 'auto';
+            taskInput.style.height = taskInput.scrollHeight + 'px';
+        });
+
+        // Set HR Role
+        setTaskBtn.addEventListener('click', async () => {
+            const t = translations[currentLang];
+            const description = taskInput.value.trim();
+            const selectedModel = modelSelect.value;
+
+            if (!selectedModel) {
+                alert(t.modelEmpty);
+                return;
+            }
+            if (!description) {
+                alert(t.taskEmpty);
+                return;
+            }
+
+            addMessage('user', `模型: ${selectedModel}\n角色: ${description}`);
+            setTaskBtn.disabled = true;
+            setTaskBtn.textContent = t.settingTask;
+
+            try {
+                const response = await fetch('/start_task', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        task_description: description,
+                        language: currentLang,
+                        model: selectedModel
+                    })
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    addMessage('gpt', data.message);
+                    taskSetupArea.style.display = 'none';
+                    analysisArea.style.display = 'flex';
+                } else {
+                    addMessage('gpt', `❌ ${data.error}`);
+                    setTaskBtn.disabled = false;
+                    setTaskBtn.textContent = t.setTaskBtn;
+                }
+            } catch (error) {
+                addMessage('gpt', `❌ ${t.requestFailed}`);
+                setTaskBtn.disabled = false;
+                setTaskBtn.textContent = t.setTaskBtn;
+            }
+        });
+
+        // Handle file upload for analysis
+        fileInput.addEventListener('change', async (event) => {
+            const t = translations[currentLang];
+            const file = event.target.files[0];
+            if (!file) return;
+
+            addMessage('user', `📄 ${file.name}`);
+            const loadingMsgId = 'loading-' + Date.now();
+            addMessage('gpt', '<div class="typing-indicator"><span></span><span></span><span></span></div>', loadingMsgId);
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('/analyze_answers', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    updateLastMessage(data.analysis, loadingMsgId);
+                } else {
+                    updateLastMessage(`❌ ${data.error || t.analysisFailed}`, loadingMsgId);
+                }
+            } catch (error) {
+                updateLastMessage(`❌ ${t.requestFailed}`, loadingMsgId);
+            } finally {
+                fileInput.value = '';
+            }
+        });
+
+        // Save Analysis
+        saveBtn.addEventListener('click', async () => {
+            const t = translations[currentLang];
+            const loadingMsgId = 'loading-' + Date.now();
+            addMessage('gpt', t.saving, loadingMsgId);
+            try {
+                const response = await fetch('/save_analysis', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ language: currentLang })
+                });
+                const data = await response.json();
+                updateLastMessage(data.message || data.error, loadingMsgId);
+            } catch (error) {
+                updateLastMessage(`❌ ${t.requestFailed}`, loadingMsgId);
+            }
+        });
+
+        function addMessage(sender, text, msgId = null) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', sender);
+            if (msgId) messageElement.id = msgId;
+
+            const icon = sender === 'user' ? '👨🏻‍💼' : '💻';
+            const formattedText = text.replace(/\n/g, '<br>');
+
+            messageElement.innerHTML = `
+                <div class="icon">${icon}</div>
+                <div class="content">${formattedText}</div>
+            `;
+            chatBox.appendChild(messageElement);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+        
+        function updateLastMessage(text, msgId) {
+            const loadingMessage = document.getElementById(msgId);
+            if (loadingMessage) {
+                const contentDiv = loadingMessage.querySelector('.content');
+                contentDiv.innerHTML = text.replace(/\n/g, '<br>');
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>岗位性格测评问卷</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f4f7f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            position: relative;
+        }
+
+        .lang-switcher {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+        }
+
+        .lang-switcher button {
+            background: none;
+            border: 1px solid #ddd;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .lang-switcher button.active {
+            background-color: #1a73e8;
+            color: white;
+            border-color: #1a73e8;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1a73e8;
+            margin-bottom: 25px;
+            padding-right: 80px;
+            /* Space for lang switcher */
+        }
+
+        .question-item {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .question-text {
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .options-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .option-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 5px;
+            text-align: center;
+            flex-basis: 90px;
+        }
+
+        .option-item input[type="radio"] {
+            margin-bottom: 5px;
+        }
+
+        .option-item label {
+            font-size: 0.8em;
+            cursor: pointer;
+        }
+
+        .submit-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #fff;
+            background-color: #28a745;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .submit-btn:hover {
+            background-color: #218838;
+        }
+
+        #results-container {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            display: none;
+            /* Initially hidden */
+        }
+
+        #results-container h2 {
+            margin-top: 0;
+            color: #1a73e8;
+        }
+
+        .download-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .download-buttons button {
+            flex-grow: 1;
+            padding: 12px;
+            font-size: 1em;
+            font-weight: bold;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .txt-btn {
+            background-color: #007bff;
+        }
+
+        .txt-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .json-btn {
+            background-color: #fd7e14;
+        }
+
+        .json-btn:hover {
+            background-color: #c7610a;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="lang-switcher">
+            <button id="lang-zh" class="active">中文</button>
+            <button id="lang-en">English</button>
+        </div>
+        <h1 id="main-title"></h1>
+        <form id="quiz-form"></form>
+        <button id="submit-btn" type="button"></button>
+
+        <div id="results-container">
+            <h2 id="results-title"></h2>
+            <div class="download-buttons">
+                <button id="download-txt" class="txt-btn"></button>
+                <button id="download-json" class="json-btn"></button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+
+        const languageContent = {
+            zh: {
+                title: "岗位性格测评问卷",
+                questions: [
+                    "我渴望获得成功",
+                    "获得赞赏能够真正地激励我",
+                    "我对人们行为背后的动机非常感兴趣",
+                    "我觉得掌握全部相关信息很重要",
+                    "我觉得在最后期限前完成任务很重要",
+                    "我希望获得别人对我表现的反馈",
+                    "我必须了解底层原理才能更有效学习",
+                    "我信守自己做出的承诺",
+                    "我能解决问题",
+                    "我掌控着自己的未来",
+                    "我善于结交朋友",
+                    "我善于鼓励别人",
+                    "我从发现商业良机中获得真正的满足感",
+                    "我喜欢结交陌生人",
+                    "我觉得我必须参考他人的观点",
+                    "我必须找到解决问题的办法",
+                    "守时是我的一个重要原则",
+                    "我从制定策略中得到真正的满足感",
+                    "我能想出很多主意",
+                    "我善于照章行事",
+                    "我通过阅读学到了很多东西",
+                    "我是一个宽容的人",
+                    "我能很快跟别人建立融洽的关系",
+                    "我善于着手开展工作",
+                    "我需要成为人们关注的焦点",
+                    "我喜欢在有压力的环境下工作",
+                    "我倾向于通过实践来学习",
+                    "我有强烈的好奇心",
+                    "我觉得为事情做出计划很重要",
+                    "我喜欢提出很多主意",
+                    "我善于处理不确定的事情",
+                    "我善于发现如何对事情进行改进",
+                    "我善于理解人们行为背后的动机",
+                    "人们都说我能给人留下良好的第一印象",
+                    "我善于谈判",
+                    "我已经准备好随时做出重要决策",
+                    "我很享受充满干劲的感觉",
+                    "我想尽量使利益最大化",
+                    "我很享受在团队中工作",
+                    "我认为具备常识很重要",
+                    "我希望事情都能妥善完成",
+                    "我更愿意开心地面对事情",
+                    "我乐意去适应新的挑战",
+                    "工作繁忙时我任然把事情处理的很好",
+                    "我具有良好的书面沟通能力",
+                    "我是一个愿意为人着想的人",
+                    "我擅长把问题解释清楚",
+                    "即使遇到艰难的挑战，我也会坚持不懈",
+                    "我渴望达成交易",
+                    "我很喜欢与人争辩",
+                    "在重大活动期间，我很少感到焦虑",
+                    "我倾向于根据客观事实做决定",
+                    "做事情的时候我需要有章可循",
+                    "我很少为不确定性而烦恼",
+                    "我能制定有效的策略",
+                    "我善于在最后期限前完成任务",
+                    "我是学东西很快的人",
+                    "我擅长倾听他人",
+                    "人们都说我很活泼轻",
+                    "我善于进行掌控",
+                    "我希望能负责重大决策",
+                    "我喜欢把问题解释清楚",
+                    "我需要了解论点背后的逻辑",
+                    "我喜欢低风险的选择",
+                    "我渴望能迅速从挫折中恢复",
+                    "我喜欢抽象思考",
+                    "我要求别人对我的表现进行反馈",
+                    "我善于同时处理多项任务",
+                    "我善于解决争端",
+                    "我善于建立人际网络",
+                    "我善于启发别人",
+                    "人们都说我干劲十足",
+                    "我喜欢协调各方人员",
+                    "我想让别人倾听我的观点",
+                    "我相信我能决定给自己的未来",
+                    "我喜欢写作",
+                    "我需要对事物的优先级做出明确的安排",
+                    "我对变化秉持积极的态度",
+                    "我善于长远思考",
+                    "保守秘密是我的最大长处之一",
+                    "我非常注意细节",
+                    "我善于处理数字资料",
+                    "我信任他人",
+                    "我善于辨识商机",
+                    "我认为取得突出的成绩很重要",
+                    "我希望人们为他们的观点提出论据",
+                    "我希望大家能够一起参与最终的决策",
+                    "我觉得认可自己很重要",
+                    "我喜欢快速学习新事物",
+                    "我喜欢同时处理多件事情",
+                    "我鼓励其他人对我的方法提出批评",
+                    "我避免风险较大的决策",
+                    "我仅根据客观事实做决策",
+                    "在重大活动期间，我很少会紧张",
+                    "我通常是人们关注的焦点",
+                    "我很少改变主意",
+                    "我认为能激励别人很重要",
+                    "建立融洽的关系对我来说相当重要",
+                    "我需要肯定自己的价值",
+                    "我喜欢分析信息",
+                    "我觉得保守秘密很重要",
+                    "我喜欢运用理论",
+                    "我采取激进的方法解决问题",
+                    "我能组合出有效的计划",
+                    "我能够立刻意识到某些事的可行性",
+                    "我善于让生气的人冷静下来",
+                    "我容易和人争辩",
+                    "我善于推销",
+                    "我想要成为领导",
+                    "我喜欢做演讲陈述",
+                    "我认为自己可以从容地应对生气的人",
+                    "我想对事物进行持续的改进",
+                    "我喜欢快节奏的工作",
+                    "我喜欢激进的解决方案",
+                    "我能够很好的分出工作的轻重缓急",
+                    "我寻找学习新事物的机会",
+                    "我对白己非常认可",
+                    "我善于参考他人的观点",
+                    "我让别人注意到我的成就",
+                    "我取得了突出的成绩",
+                    "我急于采取行动",
+                    "我希望我能给人们带来启发",
+                    "我觉得建立人际网络很重要",
+                    "我觉得争端必须解决",
+                    "我做事不喜欢半途而废",
+                    "我很享受新事物带来的挑战",
+                    "我善于将理论应用于实践",
+                    "我能够很快从挫折中恢复过来",
+                    "我擅长遵守规则",
+                    "我善于发现相关事实信息",
+                    "我善于挑战他人的观点",
+                    "领导力是我的一大优势",
+                    "我倾向于快速决策",
+                    "当我不同意别人的一件事我会告诉他",
+                    "我觉得自己可以从容自若地应对情绪不安的人",
+                    "我喜欢做实操性的工作",
+                    "我觉得待人接物符合伦理道德",
+                    "我需要知道自己表现如何",
+                    "我是一个乐观的人",
+                    "我善于自我管理",
+                    "利用信息科技是我的的一大优势",
+                    "我善于体会他人的感受",
+                    "在结实陌生人时，我充满自信",
+                    "我善于发现寻找方法来激励他人",
+                    "我希望对事物进行掌控",
+                    "我觉得理解他人的感受很重要",
+                    "我喜欢处理数字资料",
+                    "我是一个完美主义者",
+                    "我觉得人们信守承诺相当重要",
+                    "我需要有明确的远景规划",
+                    "面对他人的反馈意见，我能做出积极反应",
+                    "我善于完成任务",
+                    "我能够了解论点背后的逻辑",
+                    "我非常肯定自己的价值",
+                    "我能有力地表达自己的观点",
+                    "我是一个求胜心很强的人",
+                    "我认为无论在任何情况下，我都必须持之以恒",
+                    "我很爱说话",
+                    "我觉得在重大活动前没有必要担心",
+                    "我想立刻抓住主要问题",
+                    "我想要确保细节准确",
+                    "我觉得完全了解事物的底层原理很有趣",
+                    "我能够为未来规划一个令人振奋的远景",
+                    "我善于快节奏地工作",
+                    "我善于分析信息",
+                    "我善于让大家一起参与最终的决策",
+                    "我会公开表达对他人的反对意见",
+                    "我善于快速决策",
+                    "我总觉得有采取行动的必要",
+                    "我很希望能给人留下良好的第一印象",
+                    "我喜欢倾听他人",
+                    "我喜欢通过阅读来学习",
+                    "我需要有章可循",
+                    "我喜欢提出独到的见解",
+                    "我能很好应对变化",
+                    "我的行为符合伦理道德",
+                    "人们都说我有丰富的知识",
+                    "我善于应对情绪不好的人",
+                    "当我工作出色时会寻求赞赏",
+                    "人们都说我善于协调各方人员",
+                    "我希望能真正鼓励他人",
+                    "我希望人们知道我的成功",
+                    "我觉得为他人着想是相当重要的",
+                    "我觉得信息技术非常有趣",
+                    "我非常喜欢工作繁忙",
+                    "我倾向于保持乐观的态度",
+                    "我善于提出新概念",
+                    "人们认为我是一个做事周密彻底的人",
+                    "我善于洞察问题的实质",
+                    "在重大活动前,我能保持冷静",
+                    "我很健谈",
+                    "我很有雄心",
+                    "我对大多数问题持强烈的观点",
+                    "我非常喜欢充满活力的感觉",
+                    "我认为宽容待人很重要",
+                    "学习新事物的机会能给我带来动力",
+                    "我喜欢做事井井有条",
+                    "我喜欢思考未来",
+                    "我是一个开心的人",
+                    "我能够确保高质量水平",
+                    "我通过实践来学习",
+                    "我善于在团队中工作",
+                    "我是一个有说服力的人",
+                    "我善于促使事情发生",
+                    "我需要胜利",
+                    "我想要说服他人接收我的观点",
+                    "我喜欢结交新朋友",
+                    "我认为信任他人很重要",
+                    "对于事物是否可行，我相信我的直觉判断",
+                    "我想知道我的方法出了什么差错",
+                    "我善于想出不同寻常的主意",
+                    "我一向准时到达",
+                    "我善于做实操性的任务",
+                    "我善于提出探索性的问题",
+                    "我能在有压力的环境下很好地工作",
+                    "我擅长做演讲陈述",
+                ],
+                options: [
+                    { value: 1, label: "非常强烈地不同意" }, { value: 2, label: "强烈不同意" },
+                    { value: 3, label: "不同意" }, { value: 4, label: "轻微不同意" },
+                    { value: 5, label: "不确定/中立" }, { value: 6, label: "轻微同意" },
+                    { value: 7, label: "同意" }, { value: 8, label: "强烈同意" },
+                    { value: 9, label: "非常强烈同意" },
+                ],
+                submitButton: "完成并生成结果",
+                alertMessage: "请确保所有问题都已回答！",
+                resultsTitle: "测评结果",
+                downloadTxt: "下载为 .txt 文件",
+                downloadJson: "下载为 .json 文件"
+            },
+            en: {
+                title: "Job Personality Assessment",
+                questions: [
+                    "I long for success",
+                    "Receiving praise can genuinely motivate me",
+                    "I am very interested in the motivations behind people's behavior",
+                    "I feel it's important to grasp all relevant information",
+                    "I feel it's important to complete tasks before the final deadline",
+                    "I hope to receive feedback from others on my performance",
+                    "I must understand the underlying principles to learn more effectively",
+                    "I keep the promises I make",
+                    "I can solve problems",
+                    "I am in control of my own future",
+                    "I am good at making friends",
+                    "I am good at encouraging others",
+                    "I gain genuine satisfaction from discovering business opportunities",
+                    "I like to meet strangers",
+                    "I feel I must consider the viewpoints of others",
+                    "I must find a way to solve problems",
+                    "Punctuality is an important principle for me",
+                    "I gain genuine satisfaction from developing strategies",
+                    "I can come up with many ideas",
+                    "I am good at following procedures",
+                    "I have learned a lot through reading",
+                    "I am a tolerant person",
+                    "I can quickly build rapport with others",
+                    "I am good at getting started on work",
+                    "I need to be the center of attention",
+                    "I like to work under pressure",
+                    "I tend to learn by doing",
+                    "I have a strong sense of curiosity",
+                    "I think it's important to make plans for things",
+                    "I like to propose many ideas",
+                    "I am good at handling uncertainty",
+                    "I am good at discovering how to improve things",
+                    "I am good at understanding the motivations behind people's behavior",
+                    "People say I make a good first impression",
+                    "I am good at negotiating",
+                    "I am ready to make important decisions at any time",
+                    "I enjoy the feeling of being full of energy",
+                    "I want to maximize benefits as much as possible",
+                    "I enjoy working in a team",
+                    "I believe having common sense is very important",
+                    "I hope things can be completed properly",
+                    "I am more willing to face things with a happy attitude",
+                    "I am willing to adapt to new challenges",
+                    "I still handle things well when work is busy",
+                    "I have good written communication skills",
+                    "I am a person who is willing to be considerate of others",
+                    "I am good at explaining problems clearly",
+                    "I will persevere even when faced with difficult challenges",
+                    "I am eager to close a deal",
+                    "I really like to argue with people",
+                    "I rarely feel anxious during major events",
+                    "I tend to make decisions based on objective facts",
+                    "I need to have a system to follow when doing things",
+                    "I am rarely troubled by uncertainty",
+                    "I can formulate effective strategies",
+                    "I am good at finishing tasks before the deadline",
+                    "I am a fast learner",
+                    "I am good at listening to others",
+                    "People say I am very cheerful and lively",
+                    "I am good at taking control",
+                    "I hope to be responsible for major decisions",
+                    "I like to explain problems clearly",
+                    "I need to understand the logic behind arguments",
+                    "I prefer low-risk options",
+                    "I am eager to recover quickly from setbacks",
+                    "I like abstract thinking",
+                    "I ask others for feedback on my performance",
+                    "I am good at handling multiple tasks simultaneously",
+                    "I am good at resolving disputes",
+                    "I am good at building social networks",
+                    "I am good at inspiring others",
+                    "People say I am full of drive",
+                    "I like to coordinate with all parties",
+                    "I want others to listen to my point of view",
+                    "I believe I can decide my own future",
+                    "I like to write",
+                    "I need to set clear priorities for matters",
+                    "I hold a positive attitude towards change",
+                    "I am good at thinking long-term",
+                    "Keeping secrets is one of my greatest strengths",
+                    "I pay great attention to detail",
+                    "I am good at handling numerical data",
+                    "I trust others",
+                    "I am good at identifying business opportunities",
+                    "I believe achieving outstanding results is very important",
+                    "I hope people will provide arguments for their views",
+                    "I hope everyone can participate in the final decision",
+                    "I think it's important to recognize my own worth",
+                    "I like to learn new things quickly",
+                    "I like to handle multiple things at the same time",
+                    "I encourage others to critique my methods",
+                    "I avoid high-risk decisions",
+                    "I make decisions based solely on objective facts",
+                    "I am rarely nervous during major events",
+                    "I am usually the center of attention",
+                    "I rarely change my mind",
+                    "I think it's important to be able to inspire others",
+                    "Building harmonious relationships is quite important to me",
+                    "I need to affirm my own value",
+                    "I like to analyze information",
+                    "I think it's important to keep secrets",
+                    "I like to apply theories",
+                    "I take an aggressive approach to solving problems",
+                    "I can put together effective plans",
+                    "I can immediately recognize the feasibility of certain things",
+                    "I am good at calming down angry people",
+                    "I get into arguments with people easily",
+                    "I am good at sales",
+                    "I want to become a leader",
+                    "I like to give speeches and presentations",
+                    "I believe I can handle angry people calmly",
+                    "I want to continuously improve things",
+                    "I like fast-paced work",
+                    "I like aggressive solutions",
+                    "I am very good at prioritizing work",
+                    "I look for opportunities to learn new things",
+                    "I have a high opinion of myself",
+                    "I am good at considering others' viewpoints",
+                    "I make others notice my achievements",
+                    "I have achieved outstanding results",
+                    "I am eager to take action",
+                    "I hope I can bring inspiration to people",
+                    "I think building a social network is very important",
+                    "I feel that disputes must be resolved",
+                    "I don't like to leave things half-done",
+                    "I enjoy the challenges that new things bring",
+                    "I am good at applying theory to practice",
+                    "I can recover from setbacks quickly",
+                    "I am good at following rules",
+                    "I am good at finding relevant factual information",
+                    "I am good at challenging others' points of view",
+                    "Leadership is one of my great strengths",
+                    "I tend to make decisions quickly",
+                    "When I disagree with someone about something, I will tell them",
+                    "I feel I can calmly handle people who are emotionally upset",
+                    "I like to do hands-on work",
+                    "I believe in treating people with ethical principles",
+                    "I need to know how I am performing",
+                    "I am an optimistic person",
+                    "I am good at self-management",
+                    "Utilizing information technology is one of my great strengths",
+                    "I am good at empathizing with the feelings of others",
+                    "I am full of confidence when meeting strangers",
+                    "I am good at finding ways to motivate others",
+                    "I want to have control over things",
+                    "I think it's important to understand others' feelings",
+                    "I like to process numerical data",
+                    "I am a perfectionist",
+                    "I feel it's quite important that people keep their promises",
+                    "I need to have a clear vision",
+                    "I can react positively to feedback from others",
+                    "I am good at completing tasks",
+                    "I can understand the logic behind arguments",
+                    "I am very certain of my own value",
+                    "I can express my views forcefully",
+                    "I am a person with a strong desire to win",
+                    "I believe I must persevere under any circumstances",
+                    "I love to talk",
+                    "I don't think it's necessary to worry before a major event",
+                    "I want to grasp the main problem immediately",
+                    "I want to ensure details are accurate",
+                    "I find it very interesting to fully understand the underlying principles of things",
+                    "I can plan an exciting vision for the future",
+                    "I am good at working in a fast-paced environment",
+                    "I am good at analyzing information",
+                    "I am good at letting everyone participate in the final decision",
+                    "I will openly express my opposition to others",
+                    "I am good at making quick decisions",
+                    "I always feel the need to take action",
+                    "I very much hope to make a good first impression",
+                    "I like to listen to others",
+                    "I like to learn by reading",
+                    "I need to have a system to follow",
+                    "I like to offer unique insights",
+                    "I can cope with change very well",
+                    "My behavior is in line with ethical principles",
+                    "People say I am very knowledgeable",
+                    "I am good at dealing with people in a bad mood",
+                    "I will seek praise when I do my job well",
+                    "People say I am good at coordinating with all parties",
+                    "I hope to truly encourage others",
+                    "I want people to know about my success",
+                    "I think being considerate of others is quite important",
+                    "I think information technology is very interesting",
+                    "I really enjoy being busy with work",
+                    "I tend to maintain an optimistic attitude",
+                    "I am good at proposing new concepts",
+                    "People think I am a thorough and meticulous person",
+                    "I am good at discerning the essence of a problem",
+                    "I can remain calm before a major event",
+                    "I am very talkative",
+                    "I am very ambitious",
+                    "I hold strong views on most issues",
+                    "I really like the feeling of being full of energy",
+                    "I believe it's important to be tolerant of others",
+                    "The opportunity to learn new things motivates me",
+                    "I like to do things in an orderly manner",
+                    "I like to think about the future",
+                    "I am a happy person",
+                    "I can ensure a high level of quality",
+                    "I learn by doing",
+                    "I am good at working in a team",
+                    "I am a persuasive person",
+                    "I am good at making things happen",
+                    "I need to win",
+                    "I want to persuade others to accept my point of view",
+                    "I like to make new friends",
+                    "I think it's important to trust others",
+                    "I trust my intuition on whether something is feasible",
+                    "I want to know what went wrong with my method",
+                    "I am good at coming up with unusual ideas",
+                    "I always arrive on time",
+                    "I am good at doing hands-on tasks",
+                    "I am good at asking exploratory questions",
+                    "I can work well under pressure",
+                    "I am good at giving speeches and presentations",
+                ],
+                options: [
+                    { value: 1, label: "Very Strongly Disagree" }, { value: 2, label: "Strongly Disagree" },
+                    { value: 3, label: "Disagree" }, { value: 4, label: "Slightly Disagree" },
+                    { value: 5, label: "Uncertain/Neutral" }, { value: 6, label: "Slightly Agree" },
+                    { value: 7, label: "Agree" }, { value: 8, label: "Strongly Agree" },
+                    { value: 9, label: "Very Strongly Agree" },
+                ],
+                submitButton: "Complete & Generate Results",
+                alertMessage: "Please ensure all questions are answered!",
+                resultsTitle: "Assessment Results",
+                downloadTxt: "Download as .txt",
+                downloadJson: "Download as .json"
+            }
+        };
+
+
+
+        let currentLang = 'zh';
+        let userAnswers = [];
+
+        const mainTitle = document.getElementById('main-title');
+        const quizForm = document.getElementById('quiz-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const resultsContainer = document.getElementById('results-container');
+        const resultsTitle = document.getElementById('results-title');
+        const downloadTxtBtn = document.getElementById('download-txt');
+        const downloadJsonBtn = document.getElementById('download-json');
+        const langZhBtn = document.getElementById('lang-zh');
+        const langEnBtn = document.getElementById('lang-en');
+
+        function renderQuiz() {
+            const content = languageContent[currentLang];
+
+            
+            document.documentElement.lang = currentLang;
+            document.title = content.title;
+
+            
+            mainTitle.textContent = content.title;
+            submitBtn.textContent = content.submitButton;
+            resultsTitle.textContent = content.resultsTitle;
+            downloadTxtBtn.textContent = content.downloadTxt;
+            downloadJsonBtn.textContent = content.downloadJson;
+
+            
+            langZhBtn.classList.toggle('active', currentLang === 'zh');
+            langEnBtn.classList.toggle('active', currentLang === 'en');
+
+            
+            let html = '';
+            content.questions.forEach((q, index) => {
+                html += `<div class="question-item">`;
+                html += `<p class="question-text">${index + 1}. ${q}</p>`;
+                html += `<div class="options-container">`;
+                content.options.forEach(option => {
+                    const inputId = `q${index}_${option.value}`;
+                    const isChecked = userAnswers[index] == option.value ? 'checked' : '';
+                    html += `
+                <div class="option-item">
+                    <input type="radio" id="${inputId}" name="q${index}" value="${option.value}" ${isChecked} required>
+                    <label for="${inputId}">${option.value}<br>${option.label}</label>
+                </div>`;
+                });
+                html += `</div></div>`;
+            });
+            quizForm.innerHTML = html;
+
+            
+            quizForm.querySelectorAll('input[type="radio"]').forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    const questionIndex = parseInt(e.target.name.replace('q', ''));
+                    userAnswers[questionIndex] = parseInt(e.target.value);
+                });
+            });
+        }
+
+        function downloadFile(content, fileName, contentType) {
+            const a = document.createElement("a");
+            const file = new Blob([content], { type: contentType });
+            a.href = URL.createObjectURL(file);
+            a.download = fileName;
+            a.click();
+            URL.revokeObjectURL(a.href);
+        }
+
+        function generateTxtContent() {
+            let text = `# Candidate Questionnaire and Answers\n\n`;
+            languageContent.zh.questions.forEach((q, index) => {
+                text += `Question ${index + 1}: ${q}\n`;
+                text += `(English): ${languageContent.en.questions[index]}\n`;
+                text += `Answer: ${userAnswers[index]}\n\n`;
+            });
+            return text.trim();
+        }
+
+        function generateJsonContent() {
+            const data = {
+                assessmentDate: new Date().toISOString(),
+                results: languageContent.zh.questions.map((q, index) => ({
+                    questionNumber: index + 1,
+                    question_zh: q,
+                    question_en: languageContent.en.questions[index],
+                    answer: userAnswers[index]
+                }))
+            };
+            return JSON.stringify(data, null, 2); 
+        }
+
+        // Event Listeners
+        langZhBtn.addEventListener('click', () => {
+            currentLang = 'zh';
+            renderQuiz();
+        });
+
+        langEnBtn.addEventListener('click', () => {
+            currentLang = 'en';
+            renderQuiz();
+        });
+
+        submitBtn.addEventListener('click', () => {
+            if (!quizForm.checkValidity()) {
+                alert(languageContent[currentLang].alertMessage);
+                return;
+            }
+            resultsContainer.style.display = 'block';
+            resultsContainer.scrollIntoView({ behavior: 'smooth' });
+        });
+
+        downloadTxtBtn.addEventListener('click', () => {
+            const content = generateTxtContent();
+            downloadFile(content, 'assessment_results.txt', 'text/plain;charset=utf-8');
+        });
+
+        downloadJsonBtn.addEventListener('click', () => {
+            const content = generateJsonContent();
+            downloadFile(content, 'assessment_results.json', 'application/json;charset=utf-8');
+        });
+
+        // Initial Render
+        renderQuiz();
+
+    </script>
+</body>
+
+</html>
