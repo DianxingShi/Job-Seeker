@@ -10,7 +10,7 @@
 This repository contains the complete codebase for an empirical study on the capabilities of Large Language Models (LLMs) in the context of corporate hiring evaluations.
 
 The project is a sophisticated, dual-LLM framework designed to simulate a complete personality assessment pipeline:
-1.  **🤖 The Candidate:** An LLM is prompted to act as a job candidate (specifically, a Software Engineer) applying for a position at a top tech company. It is given strategic instructions to answer a 233-question personality quiz in a way that maximizes its chances of being hired.
+1.  **🤖 The Candidate:** An LLM is prompted to act as a job candidate (specifically, a Software Engineer) applying for a position at a top tech company. It is given strategic instructions to answer a 216-question personality quiz in a way that maximizes its chances of being hired.
 2.  **🧑‍⚖️ The HR Evaluator:** A second LLM is prompted to act as a seasoned HR expert. This LLM receives the "candidate's" answers and performs a detailed qualitative analysis, assessing personality traits, job fit, and providing a final hiring recommendation.
 
 This framework allows for robust testing and evaluation of how different LLMs perform in both "gaming" the assessment and "evaluating" the results, all benchmarked against a quantitative "ideal" answer key.
@@ -45,7 +45,7 @@ The entire study is designed to be run in a clear, multi-step process:
     * Select an LLM model (e.g., `gpt-4o`, `gemini2.5-pro`).
     * Copy the `CANDIDATE_SYSTEM_PROMPT_EN` (or `_CN`) from `prompt_template.txt` and paste it as the "task description." This prompt instructs the LLM on *how* to answer strategically.
 4.  **Run the Quiz:**
-    * Copy all 233 questions from `quiz_EN.txt` (or `quiz_CN.txt`).
+    * Copy all 216 questions from `quiz_EN.txt` (or `quiz_CN.txt`).
     * Upload this list as a `.txt` file using the upload button.
 5.  **Save Results:**
     * The "candidate" LLM will generate a numerical answer (1-9) for each question.
