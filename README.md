@@ -1,7 +1,8 @@
 
 #  Job-Seeker
 > "You Are Rejected!": An Empirical Study of Large Language Models Taking Hiring Evaluations - Release Code
-see https://arxiv.org/abs/2510.19167
+> 
+> Our preprint paper:  https://arxiv.org/abs/2510.19167
 ---
 
 ## 🚀 Overview
