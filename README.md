@@ -1,12 +1,14 @@
+<div align="center">
+<h1> "You Are Rejected!": An Empirical Study of Large Language Models Taking Hiring Evaluations </h1>
 
-#  Job-Seeker
-> "You Are Rejected!": An Empirical Study of Large Language Models Taking Hiring Evaluations - Release Code
-> 
-> Our preprint paper:  https://arxiv.org/abs/2510.19167
----
+</div>
+  LLM Hiring Evaluations
+  
+ Our preprint paper:  https://arxiv.org/abs/2510.19167
+
 
 ## 🚀 Overview
-
+<div align="center"><img src="header.png" /></div>
 This repository contains the complete codebase for an empirical study on the capabilities of Large Language Models (LLMs) in the context of corporate hiring evaluations.
 
 The project is a sophisticated, dual-LLM framework designed to simulate a complete personality assessment pipeline:
