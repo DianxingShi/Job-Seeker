@@ -2,9 +2,7 @@
 <h1> "You Are Rejected!": An Empirical Study of Large Language Models Taking Hiring Evaluations </h1>
 
 </div>
-  LLM Hiring Evaluations
-  
- Our preprint paper:  https://arxiv.org/abs/2510.19167
+Our preprint paper:  https://arxiv.org/abs/2510.19167
 
 
 ## 🚀 Overview
