@@ -6,7 +6,7 @@ Our preprint paper:  https://arxiv.org/abs/2510.19167
 
 
 ## 🚀 Overview
-<div align="center"><img src="header.png" /></div>
+<!-- <div align="center"><img src="header.png" /></div> -->
 This repository contains the complete codebase for an empirical study on the capabilities of Large Language Models (LLMs) in the context of corporate hiring evaluations.
 
 The project is a sophisticated, dual-LLM framework designed to simulate a complete personality assessment pipeline:
